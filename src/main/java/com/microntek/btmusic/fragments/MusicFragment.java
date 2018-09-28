@@ -1,6 +1,6 @@
 package com.microntek.btmusic.fragments;
 
-
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.microntek.btmusic.MainActivity;
 import com.microntek.btmusic.R;
 import com.microntek.btmusic.gui.MyButton;
+import com.microntek.btmusic.interfaces.IMusicFragmentCallbackReceiver;
 
 /*import com.ag.lfm.LfmError;
 import com.ag.lfm.LfmParameters;
@@ -22,6 +23,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.module.AppGlideModule;*/
 
 public class MusicFragment extends Fragment implements View.OnClickListener {
+
+    private IMusicFragmentCallbackReceiver callbackReceiver;
 
     private TextView songTitleTextView;
     private TextView songArtistTextView;
@@ -34,43 +37,37 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i("com.microntek.btmusic","MusicFragment: onCreateView");
-        View musicView = inflater.inflate(R.layout.music, container, false);
+        View musicView = inflater.inflate(R.layout.music_fragment, container, false);
+
+        // Set up GUI components
         songArtistTextView = musicView.findViewById(R.id.music_artist);
         songTitleTextView = musicView.findViewById(R.id.music_name);
         albumArtImgView = musicView.findViewById(R.id.album_art);
-        setUnknownAlbumArt();
-        albumArtImgView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity)getActivity()).setupCurrentState();
-            }
-        });
+        playPreviousView = musicView.findViewById(R.id.music_pre);
+        togglePlayPausView = musicView.findViewById(R.id.music_play);
+        playNextView = musicView.findViewById(R.id.music_next);
 
-        this.playPreviousView = (MyButton) musicView.findViewById(R.id.music_pre);
-        this.togglePlayPausView = (MyButton) musicView.findViewById(R.id.music_play);
-        this.playNextView = (MyButton) musicView.findViewById(R.id.music_next);
-        this.playPreviousView.setOnClickListener(this);
-        this.togglePlayPausView.setOnClickListener(this);
-        this.playNextView.setOnClickListener(this);
+        // Set default album art to 'unknown'
+        setUnknownAlbumArt();
+
+        // Set up gui event listeners
+        playPreviousView.setOnClickListener(this);
+        togglePlayPausView.setOnClickListener(this);
+        playNextView.setOnClickListener(this);
 
         return musicView;
     }
 
-    public void setMusicInfo(String str) {
-        Log.i("com.microntek.btmusic","MusicFragment: setMusicInfo");
-        Log.i("com.microntek.btmusic","Setting new music in  GUI: " + str);
-        if (str != null) {
-            String[] split = str.split("\n");
-            if (split.length >= 2) {
-                String musicTitle = split[0].isEmpty() ? getString(R.string.unknown).toString() : split[0].toString();
-                String musicArtist = split[1].isEmpty() ? getString(R.string.unknown).toString() : split[1].toString();
-                songTitleTextView.setText(musicTitle);
-                songArtistTextView.setText(musicArtist);
-                setAlbumArt(musicArtist,musicTitle);
-                ((MainActivity)getActivity()).setWidgetMusicInfo("music.title", musicTitle);
-                ((MainActivity)getActivity()).setWidgetMusicInfo("music.albunm", musicArtist);
-            }
-        }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        // Make sure we can callback to our parent activity
+        callbackReceiver = (IMusicFragmentCallbackReceiver) context;
+    }
+
+    public void setMusicInfo(String songArtist, String songTitle) {
+        songArtistTextView.setText(songArtist);
+        songTitleTextView.setText(songTitle);
     }
 
     private void setAlbumArt(String artist, String title) {
@@ -132,23 +129,18 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
         try {
             switch (view.getId()) {
                 case R.id.music_pre:
-                    ((MainActivity)getActivity()).playPrevious();
-                    ((MainActivity)getActivity()).setWidgetMusicInfo("music.title", "previousTitle");
-                    ((MainActivity)getActivity()).setWidgetMusicInfo("music.albunm", "previousAlbunm");
+                    callbackReceiver.playPrevious();
                     return;
                 case R.id.music_play:
-                    ((MainActivity)getActivity()).playOrPauseMusic();
+                    callbackReceiver.playOrPauseMusic();
                     return;
                 case R.id.music_next:
-                    ((MainActivity)getActivity()).playNext();
-                    ((MainActivity)getActivity()).setWidgetMusicState("music.title", 1);
-                    ((MainActivity)getActivity()).setWidgetMusicState("music.albunm", 1);
+                    callbackReceiver.playNext();
                     return;
                 default:
-                    return;
             }
         } catch (Exception e) {
-
+            Log.e("com.microntek.btmusic","Error in onClick()");
         }
     }
 }

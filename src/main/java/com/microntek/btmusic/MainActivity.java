@@ -20,12 +20,19 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemProperties;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.TextView;
 
+import com.microntek.btmusic.fragments.AlarmFragment;
+import com.microntek.btmusic.fragments.MusicFragment;
 import com.microntek.btmusic.gui.MyButton;
+import com.microntek.btmusic.interfaces.IMusicFragmentCallbackReceiver;
 
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
@@ -42,12 +49,13 @@ import static android.microntek.IRTable.IR_TUNEDOWN;
 import static android.microntek.IRTable.IR_TUNEUP;
 import static android.microntek.IRTable.IR_UP;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends FragmentActivity implements IMusicFragmentCallbackReceiver {
 
     // Instance variables
     private AudioManager audioManager = null;
     private CarManager carManager = null;
     private BTServiceInf btServiceInterface = null;
+
 
     // State variables
     private int avState = 0;
@@ -56,34 +64,39 @@ public class MainActivity extends Activity implements OnClickListener {
     private boolean hasAudioFocus = false;
     private boolean isStopped = false;
 
-    // GUI components
-    private View musicView;
-    private View alarmView;
-    private TextView btModuleNameTextView;
-    private TextView btModulePasscodeTextView;
-    private View btInfoView;
-    private TextView btAlarmTextView;
-    private MyButton nextMusicBtn;
-    private MyButton playOrPauseMusicBtn;
-    private MyButton previousMusicBtn;
+    // Fragments
+
+    private MusicFragment musicFragment = new MusicFragment();
+    private AlarmFragment alarmFragment = new AlarmFragment();
 
     // Lifecycle callbacks
 
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        Log.i("com.microntek.btmusic","MainActivity: onCreate");
+
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        setupViews();
+
         this.audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         this.carManager = new CarManager();
+
         this.isInMultiWindowMode = isInMultiWindowMode();
         this.carManager.setParameters("av_channel_enter=gsm_bt");
+
         requestAudioFocus();
         notifyA2DPTurnedOn();
+
         Intent intent = new Intent("com.microntek.bootcheck");
         intent.putExtra("class", "com.microntek.bluetooth");
         sendBroadcast(intent);
+
         intent = new Intent();
         intent.setComponent(new ComponentName("android.microntek.mtcser", "android.microntek.mtcser.BlueToothService"));
         bindService(intent, this.serviceConnection, Context.BIND_AUTO_CREATE);
-        setupViews();
+
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.microntek.bootcheck");
         intentFilter.addAction("com.microntek.removetask");
@@ -97,13 +110,15 @@ public class MainActivity extends Activity implements OnClickListener {
         intentFilter.addAction("com.microntek.btbarstatechange");
         intentFilter.addAction("com.btmusic.finish");
         registerReceiver(this.onSystemCommandReceiver, intentFilter);
+
         intentFilter = new IntentFilter();
-        intentFilter.addAction("com.android.music.musicservicecommand");
+        intentFilter.addAction("com.android.music_fragment.musicservicecommand");
         registerReceiver(this.onPauseCommandReceiver, intentFilter);
+
         this.carManager.attach(new Handler(){
             public void handleMessage(Message message) {
                 super.handleMessage(message);
-                if ("KeyDown".equals((String) message.obj)) {
+                if ("KeyDown".equals(message.obj)) {
                     Bundle data = message.getData();
                     if ("key".equals(data.getString("type"))) {
                         handleKeyPress(data.getInt("value"));
@@ -161,8 +176,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     btState = btServiceInterface.getBTState();
                     avState = btServiceInterface.getAVState();
                     setMusicInfo(btServiceInterface.getMusicInfo());
-                    btModuleNameTextView.setText(getResources().getString(R.string.modulename) + btServiceInterface.getModuleName());
-                    btModulePasscodeTextView.setText(getResources().getString(R.string.modulepassword) + btServiceInterface.getModulePassword());
+                    setModuleInfo(btServiceInterface.getModuleName(),btServiceInterface.getModulePassword());
                 } catch (Exception e2) {
                 }
             }
@@ -180,31 +194,29 @@ public class MainActivity extends Activity implements OnClickListener {
     // GUI management
 
     private void setupViews() {
-        setContentView(R.layout.music);
-        this.alarmView = findViewById(R.id.music_alarm);
-        this.musicView = findViewById(R.id.music_part);
-        this.btInfoView = this.alarmView.findViewById(R.id.btinfo);
-        this.btAlarmTextView = findViewById(R.id.bt_alarm);
-        this.btModuleNameTextView = this.alarmView.findViewById(R.id.tv_name);
-        this.btModulePasscodeTextView = this.alarmView.findViewById(R.id.tv_pincode);
-        this.previousMusicBtn = findViewById(R.id.music_pre);
-        this.playOrPauseMusicBtn = findViewById(R.id.music_play);
-        this.nextMusicBtn = findViewById(R.id.music_next);
-        this.previousMusicBtn.setOnClickListener(this);
-        this.playOrPauseMusicBtn.setOnClickListener(this);
-        this.nextMusicBtn.setOnClickListener(this);
+        Log.i("com.microntek.btmusic","MainActivity: setupViews");
+        setContentView(R.layout.fragment_container);
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_root, musicFragment).commit();
     }
 
     private void setupCurrentState() {
+        Log.i("com.microntek.btmusic","MainActivity: setupCurrentState");
+
+        // If we do not have a BT connection..
         if (this.btState == 0 || this.avState == 0) {
-            this.alarmView.setVisibility(View.VISIBLE);
-            this.musicView.setVisibility(View.GONE);
+            // ..and if we are not already showing the "alarm" fragment..
+            if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") == null){
+                // ..show it!
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_root, alarmFragment).addToBackStack("alarm_fragment").commit();
+            }
             notifyWidgetOfInactiveState();
             return;
         }
         notifyWidgetOfActiveState();
-        this.alarmView.setVisibility(View.GONE);
-        this.musicView.setVisibility(View.VISIBLE);
+        // Else, if a BT connection exists and we are showing the "alarm fragment"..
+        if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") != null){
+            getSupportFragmentManager().popBackStackImmediate("alarm_fragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
         if (this.btServiceInterface != null) {
             try {
                 setMusicInfo(this.btServiceInterface.getMusicInfo());
@@ -221,56 +233,39 @@ public class MainActivity extends Activity implements OnClickListener {
             setupViews();
         }
     }
-
-    public void onClick(View view) {
-        try {
-            switch (view.getId()) {
-                case R.id.music_pre:
-                    playPrevious();
-                    return;
-                case R.id.music_play:
-                    playOrPauseMusic();
-                    return;
-                case R.id.music_next :
-                    playNext();
-                    return;
-                default:
-                    return;
-            }
-        } catch (Exception e) {
-            // Nuffin'
-        }
-    }
-
-
     // Music related
 
-    private void playNext() {
+    public void playNext() {
         try {
             this.btServiceInterface.avPlayNext();
         } catch (Exception e) {
         }
     }
 
-    private void playPrevious() {
-        try {
-            this.btServiceInterface.avPlayPrev();
-        } catch (Exception e) {
-        }
-    }
-
-    private void playOrPauseMusic() {
+    public void playOrPauseMusic() {
         try {
             this.btServiceInterface.avPlayPause();
         } catch (Exception e) {
         }
     }
 
-    private void stopMusic() {
+    public void playPrevious() {
+        try {
+            this.btServiceInterface.avPlayPrev();
+        } catch (Exception e) {
+        }
+    }
+
+
+    public void stopMusic() {
         try {
             this.btServiceInterface.avPlayStop();
         } catch (Exception e) {
         }
+    }
+
+    public void goBack() {
+        this.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
     }
 
 
@@ -342,16 +337,17 @@ public class MainActivity extends Activity implements OnClickListener {
         if (musicInfoStr != null) {
             String[] split = musicInfoStr.split("\n");
             if (split.length >= 2) {
-                TextView songTitleTextView = (TextView) findViewById(R.id.music_name);
-                TextView songArtistTextView = (TextView) findViewById(R.id.music_artist);
-                String songTitle = split[0].isEmpty() ? getString(R.string.unknown).toString() : split[0].toString();
-                String songArtist = split[1].isEmpty() ? getString(R.string.unknown).toString() : split[1].toString();
-                songTitleTextView.setText(songTitle);
-                songArtistTextView.setText(songArtist);
-                setWidgetMusicInfo("music.title", songTitle);
-                setWidgetMusicInfo("music.albunm", songArtist);
+                String songTitle = split[0].isEmpty() ? getString(R.string.unknown) : split[0];
+                String songArtist = split[1].isEmpty() ? getString(R.string.unknown) : split[1];
+                musicFragment.setMusicInfo(songTitle,songArtist);
+                setWidgetMusicInfo("music_fragment.title", songTitle);
+                setWidgetMusicInfo("music_fragment.albunm", songArtist);
             }
         }
+    }
+
+    private void setModuleInfo(String moduleName, String modulePasscode) {
+        alarmFragment.setModuleInformation(moduleName,modulePasscode);
     }
 
     private void setWidgetMusicInfo(String str, String str2) {
@@ -369,14 +365,13 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
 
-
     // Command receivers / handlers
 
     private BroadcastReceiver onPauseCommandReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i("com.microntek.btmusic","MainActivity: onPauseCommandReceiver");
-            if (intent.getAction().equals("com.android.music.musicservicecommand") && intent.hasExtra("command") && intent.getStringExtra("command").equals("pause")) {
+            if (intent.getAction().equals("com.android.music_fragment.musicservicecommand") && intent.hasExtra("command") && intent.getStringExtra("command").equals("pause")) {
                 MainActivity.this.carManager.setParameters("av_focus_loss=gsm_bt");
                 MainActivity.this.hasAudioFocus = false;
                 MainActivity.this.finish();
@@ -426,7 +421,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 } else if (action.equals("hct.btmusic.stop")) {
                     stopMusic();
                 } else if (action.equals("hct.btmusic.info")) {
-                    setWidgetMusicState("music.state", avState);
+                    setWidgetMusicState("music_fragment.state", avState);
                 } else if (action.equals("com.microntek.btbarstatechange")) {
                     if (btServiceInterface != null) {
                         try {
@@ -445,7 +440,7 @@ public class MainActivity extends Activity implements OnClickListener {
     };
 
     private void handleKeyPress(int i) {
-        boolean equals = ((RunningTaskInfo) ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)).getRunningTasks(40).get(0)).topActivity.getPackageName().equals("com.microntek.radio");
+        boolean equals = (((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)).getRunningTasks(40).get(0)).topActivity.getPackageName().equals("com.microntek.radio");
         boolean equals2 = SystemProperties.get("ro.product.customer.sub").equals("KLD25");
         if (this.hasAudioFocus) {
             switch (i) {

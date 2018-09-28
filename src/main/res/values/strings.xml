@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Bluetooth</string>
     <string name="modulename">Device Name:</string>
     <string name="modulepassword">PIN Number:</string>
@@ -11,6 +11,7 @@
     <string name="matchdevice">Paired devices</string>
     <string name="searchdevice">Available devices</string>
     <string name="bluetooth">Bluetooth</string>
+    <string name="not_available">N/A</string>
     <string name="LA">A</string>
     <string name="LB">B</string>
     <string name="LC">C</string>
@@ -43,7 +44,7 @@
     <string name="bluetooth_device_context_disconnect">Disconnect?</string>
     <string name="musicnumber">(%1$s/%1$s)</string>
     <string name="btmusic">A2DP</string>
-    <string name="alarm">Bluetooth is not connection!</string>
+    <string name="alarm">Bluetooth is not connected!</string>
     <string name="operator">China</string>
     <string name="operator_name_cmcc">CMCC</string>
     <string name="operator_name_cucc">CUCC</string>
