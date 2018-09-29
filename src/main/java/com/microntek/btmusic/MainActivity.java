@@ -207,16 +207,18 @@ public class MainActivity extends FragmentActivity implements IMusicFragmentCall
             // ..and if we are not already showing the "alarm" fragment..
             if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") == null){
                 // ..show it!
-                getSupportFragmentManager().beginTransaction().add(R.id.fragment_root, alarmFragment).addToBackStack("alarm_fragment").commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_root, alarmFragment).addToBackStack("alarm_fragment").commit();
             }
             notifyWidgetOfInactiveState();
             return;
         }
         notifyWidgetOfActiveState();
-        // Else, if a BT connection exists and we are showing the "alarm fragment"..
-        if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") != null){
-            getSupportFragmentManager().popBackStackImmediate("alarm_fragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }
+        // Else, if a BT connection exists and we are showing the "alarm fragment".
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_root, musicFragment).addToBackStack("alarm_fragment").commit();
+
+        //  if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") != null){
+        //     getSupportFragmentManager().popBackStackImmediate("alarm_fragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        // }
         if (this.btServiceInterface != null) {
             try {
                 setMusicInfo(this.btServiceInterface.getMusicInfo());

@@ -31,20 +31,6 @@ public class AlarmFragment extends Fragment {
         btModuleNameTextView = alarmView.findViewById(R.id.tv_name);
         btModulePasswordTextView = alarmView.findViewById(R.id.tv_pincode);
         gifImageView = alarmView.findViewById(R.id.bt_anim);
-        alarmView.setFocusableInTouchMode(true);
-        alarmView.requestFocus();
-        alarmView.setOnKeyListener( new View.OnKeyListener()
-        {
-            @Override
-            public boolean onKey( View v, int keyCode, KeyEvent event )
-            {
-                if( keyCode == KeyEvent.KEYCODE_BACK )
-                {
-                    callbackReceiver.goBack();
-                }
-                return false;
-            }
-        } );
         return alarmView;
     }
 
