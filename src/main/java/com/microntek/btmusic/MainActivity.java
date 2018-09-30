@@ -205,6 +205,8 @@ public class MainActivity extends FragmentActivity implements IMusicFragmentCall
         // If we do not have a BT connection..
         if (this.btState == 0 || this.avState == 0) {
             // ..and if we are not already showing the "alarm" fragment..
+            musicFragment.setUnknownAlbumArt();
+            musicFragment.setMusicInfo(getString(R.string.unknown),getString(R.string.unknown));
             if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") == null){
                 // ..show it!
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_root, alarmFragment).addToBackStack("alarm_fragment").commit();
@@ -214,7 +216,7 @@ public class MainActivity extends FragmentActivity implements IMusicFragmentCall
         }
         notifyWidgetOfActiveState();
         // Else, if a BT connection exists and we are showing the "alarm fragment".
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_root, musicFragment).addToBackStack("alarm_fragment").commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_root, musicFragment).commit();
 
         //  if (getSupportFragmentManager().findFragmentByTag("alarm_fragment") != null){
         //     getSupportFragmentManager().popBackStackImmediate("alarm_fragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -342,6 +344,7 @@ public class MainActivity extends FragmentActivity implements IMusicFragmentCall
                 String songTitle = split[0].isEmpty() ? getString(R.string.unknown) : split[0];
                 String songArtist = split[1].isEmpty() ? getString(R.string.unknown) : split[1];
                 musicFragment.setMusicInfo(songTitle,songArtist);
+                musicFragment.setAlbumArt(songArtist,songTitle);
                 setWidgetMusicInfo("music_fragment.title", songTitle);
                 setWidgetMusicInfo("music_fragment.albunm", songArtist);
             }

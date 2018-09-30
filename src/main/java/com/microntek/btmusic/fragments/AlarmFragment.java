@@ -37,6 +37,7 @@ public class AlarmFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Log.i("com.microntek.btmusic","AlarmFragment: onAttach");
         // Make sure we can callback to our parent activity
         callbackReceiver = (IMusicFragmentCallbackReceiver) context;
     }

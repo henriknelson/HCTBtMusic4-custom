@@ -10,17 +10,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.microntek.btmusic.MainActivity;
+import com.bumptech.glide.Glide;
 import com.microntek.btmusic.R;
 import com.microntek.btmusic.gui.MyButton;
 import com.microntek.btmusic.interfaces.IMusicFragmentCallbackReceiver;
 
-/*import com.ag.lfm.LfmError;
+import com.ag.lfm.LfmError;
 import com.ag.lfm.LfmParameters;
 import com.ag.lfm.LfmRequest;
 import com.ag.lfm.api.LfmApi;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.module.AppGlideModule;*/
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class MusicFragment extends Fragment implements View.OnClickListener {
 
@@ -47,9 +48,6 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
         togglePlayPausView = musicView.findViewById(R.id.music_play);
         playNextView = musicView.findViewById(R.id.music_next);
 
-        // Set default album art to 'unknown'
-        setUnknownAlbumArt();
-
         // Set up gui event listeners
         playPreviousView.setOnClickListener(this);
         togglePlayPausView.setOnClickListener(this);
@@ -61,19 +59,20 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Log.i("com.microntek.btmusic","MusicFragment: onAttach");
         // Make sure we can callback to our parent activity
         callbackReceiver = (IMusicFragmentCallbackReceiver) context;
     }
 
     public void setMusicInfo(String songArtist, String songTitle) {
+        Log.i("com.microntek.btmusic","MusicFragment: setMusicInfo");
         songArtistTextView.setText(songArtist);
         songTitleTextView.setText(songTitle);
     }
 
-    private void setAlbumArt(String artist, String title) {
+    public void setAlbumArt(String artist, String title) {
         Log.i("com.microntek.btmusic","MusicFragment: setAlbumArt");
-        setUnknownAlbumArt();
-        /*LfmParameters params = new LfmParameters();
+        LfmParameters params = new LfmParameters();
         params.put("autocorrect","1");
         params.put("artist",artist);
         params.put("track",title);
@@ -115,17 +114,17 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
             public void onError(LfmError error) {
                 setUnknownAlbumArt();
             }
-        });*/
+        });
     }
 
-    private void setUnknownAlbumArt() {
+    public void setUnknownAlbumArt() {
         Log.i("com.microntek.btmusic","MusicFragment: setUnknownAlbumArt");
-        albumArtImgView.setImageResource(R.drawable.unknown);
-        //Glide.with(getContext()).load(R.drawable.unknown).into(albumArtImgView);
+        Glide.with(getContext()).load(R.drawable.unknown).into(albumArtImgView);
     }
 
     @Override
     public void onClick(View view) {
+        Log.i("com.microntek.btmusic","MusicFragment: onClick");
         try {
             switch (view.getId()) {
                 case R.id.music_pre:
