@@ -5,6 +5,5 @@ public interface IMusicFragmentCallbackReceiver {
     void playOrPauseMusic();
     void playPrevious();
     void stopMusic();
-    void goBack();
 }
 

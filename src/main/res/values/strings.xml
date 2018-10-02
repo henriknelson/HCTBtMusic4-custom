@@ -53,4 +53,6 @@
     <string name="btdisconnected">Bluetooth Disconnect</string>
     <string name="pleaseconnectedbt">Please connect with the phone</string>
     <string name="unknown">unknown</string>
+    <string name="api_key">401381f3894e617130a6c055f74b86eb</string>
+    <string name="secret">your_api_key</string>
 </resources>

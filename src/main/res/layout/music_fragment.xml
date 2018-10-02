@@ -2,42 +2,43 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mtc="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white"
+    android:background="@drawable/bg"
     android:id="@+id/music_part"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:fontFamily="@font/slate"
-        android:singleLine="true"
-        android:layout_marginEnd="10dp"
-        android:textSize="15sp"
-        android:text="nelshhMod" />
+    <ImageView
+        android:id="@+id/album_art_reflection"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:contentDescription="@string/not_available"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="240dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/unknown" />
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="455dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="50dp"
+        android:layout_marginBottom="40dp"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/album_art"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:scaleType="fitXY"
             android:contentDescription="@string/not_available"
+            android:scaleType="fitXY"
             android:src="@drawable/unknown" />
 
         <LinearLayout
-            android:layout_width="300dp"
+            android:layout_width="350dp"
             android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
             android:gravity="center"
-            android:orientation="vertical"
-            android:layout_marginStart="20dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/music_artist"
@@ -45,26 +46,26 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/slate"
                 android:singleLine="true"
-                android:textColor="@color/black"
-                android:textSize="28sp"
-                android:text="@string/not_available"/>
+                android:text="@string/not_available"
+                android:textColor="@color/white"
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/music_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/slate"
+                android:fontFamily="@font/slate_bold"
                 android:singleLine="true"
-                android:textColor="@color/black"
-                android:textSize="30sp"
-                android:text="@string/not_available"/>
+                android:text="@string/not_available"
+                android:textColor="@color/white"
+                android:textSize="24sp" />
         </LinearLayout>
 
-        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="80dp"
+        android:layout_height="100dp"
         android:layout_gravity="bottom|center_vertical|center_horizontal|center"
         android:gravity="center"
         android:orientation="horizontal">
