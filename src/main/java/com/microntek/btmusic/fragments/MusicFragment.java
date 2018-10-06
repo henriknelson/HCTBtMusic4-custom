@@ -60,13 +60,13 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
         View musicView = inflater.inflate(R.layout.music_fragment, container, false);
 
         // Set up GUI components
-        songArtistTextView = musicView.findViewById(R.id.music_artist);
-        songTitleTextView = musicView.findViewById(R.id.music_name);
-        albumArtImgView = musicView.findViewById(R.id.album_art);
-        albumArtReflectionImgView = musicView.findViewById(R.id.album_art_reflection);
-        playPreviousView = musicView.findViewById(R.id.music_pre);
-        togglePlayPausView = musicView.findViewById(R.id.music_play);
-        playNextView = musicView.findViewById(R.id.music_next);
+        songArtistTextView = (TextView) musicView.findViewById(R.id.music_artist);
+        songTitleTextView = (TextView) musicView.findViewById(R.id.music_name);
+        albumArtImgView = (ImageView) musicView.findViewById(R.id.album_art);
+        albumArtReflectionImgView = (ImageView) musicView.findViewById(R.id.album_art_reflection);
+        playPreviousView = (MyButton) musicView.findViewById(R.id.music_pre);
+        togglePlayPausView = (MyButton) musicView.findViewById(R.id.music_play);
+        playNextView = (MyButton) musicView.findViewById(R.id.music_next);
 
         // Set up gui event listeners
         playPreviousView.setOnClickListener(this);
@@ -107,7 +107,7 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
                     String albumArtURL = imageArray.getJSONObject(imageArray.length()-1).getString("#text");
                     Glide.with(getContext())
                         .load(albumArtURL)
-                        .addListener(new RequestListener<Drawable>() {
+                        .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                                 setUnknownAlbumArt();
@@ -138,7 +138,7 @@ public class MusicFragment extends Fragment implements View.OnClickListener {
     public void setUnknownAlbumArt() {
         Glide.with(getContext()).
                 load(R.drawable.unknown)
-               .addListener(new RequestListener<Drawable>() {
+               .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         setUnknownAlbumArt();

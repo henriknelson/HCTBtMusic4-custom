@@ -4,14 +4,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.microntek.btmusic.MainActivity;
 import com.microntek.btmusic.R;
 import com.microntek.btmusic.interfaces.IMusicFragmentCallbackReceiver;
 
@@ -29,9 +26,9 @@ public class AlarmFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i("com.microntek.btmusic","AlarmFragment: onCreateView");
         View alarmView = inflater.inflate(R.layout.alarm_fragment, container, false);
-        btModuleNameTextView = alarmView.findViewById(R.id.tv_name);
-        btModulePasswordTextView = alarmView.findViewById(R.id.tv_pincode);
-        gifImageView = alarmView.findViewById(R.id.bt_anim);
+        btModuleNameTextView = (TextView) alarmView.findViewById(R.id.tv_name);
+        btModulePasswordTextView = (TextView) alarmView.findViewById(R.id.tv_pincode);
+        gifImageView = (GifImageView) alarmView.findViewById(R.id.bt_anim);
         return alarmView;
     }
 

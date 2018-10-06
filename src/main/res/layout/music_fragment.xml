@@ -18,7 +18,7 @@
         android:src="@drawable/unknown" />
 
     <LinearLayout
-        android:layout_width="455dp"
+        android:layout_width="539dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="50dp"
@@ -44,7 +44,7 @@
                 android:id="@+id/music_artist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/slate"
+                android:fontFamily="@font/slate_light"
                 android:singleLine="true"
                 android:text="@string/not_available"
                 android:textColor="@color/white"
@@ -55,10 +55,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/slate_bold"
-                android:singleLine="true"
                 android:text="@string/not_available"
                 android:textColor="@color/white"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit ="marquee_forever"
+                android:scrollHorizontally="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:fadingEdge="horizontal"/>
         </LinearLayout>
 
     </LinearLayout>
