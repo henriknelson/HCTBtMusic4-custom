@@ -1,1 +1,1 @@
-include ':lastfm-library'
+include ':app', ':lastfm-library'

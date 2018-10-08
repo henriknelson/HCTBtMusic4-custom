@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '28.0.2'
+
+    defaultConfig {
+        applicationId 'com.microntek.btmusic'
+        minSdkVersion 25
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+
+dependencies {
+    implementation files('libs/glide-full-4.7.0.jar')
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.15'
+    implementation project(':lastfm-library')
+    implementation 'com.android.support:support-v4:25.4.0'
+}
